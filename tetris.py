@@ -47,25 +47,13 @@ def draw_block_with_gradient(screen, color, rect):
     # Create a surface for the block with alpha channel
     block_surface = pygame.Surface((width, height), pygame.SRCALPHA)
     
-    # Draw rounded rectangle with gradient
     # Base color
     base_color = color
     
-    # Draw gradient layers
-    for i in range(height):
-        # Calculate gradient color - lighter at top, darker at bottom
-        factor = 1.0 - (i / height) * 0.3
-        grad_color = (
-            min(255, int(base_color[0] * factor + 40)),
-            min(255, int(base_color[1] * factor + 40)),
-            min(255, int(base_color[2] * factor + 40))
-        )
-        pygame.draw.line(block_surface, grad_color, (2, i), (width - 2, i))
-    
-    # Draw rounded corners by drawing a filled rect with border radius
+    # Draw rounded rectangle as base
     pygame.draw.rect(block_surface, base_color, (0, 0, width, height), border_radius=3)
     
-    # Redraw gradient on top
+    # Draw gradient on top
     for i in range(height):
         factor = 1.0 - (i / height) * 0.3
         grad_color = (
