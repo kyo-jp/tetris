@@ -40,9 +40,53 @@ class Figure:
         self.rotation = (self.rotation + 1) % len(self.figures[self.type])
 
 
+def draw_block_with_gradient(screen, color, rect):
+    """Draw a block with gradient effect and rounded corners"""
+    x, y, width, height = rect
+    
+    # Create a surface for the block with alpha channel
+    block_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+    
+    # Base color
+    base_color = color
+    
+    # Draw rounded rectangle as base
+    pygame.draw.rect(block_surface, base_color, (0, 0, width, height), border_radius=3)
+    
+    # Draw gradient on top
+    for i in range(height):
+        factor = 1.0 - (i / height) * 0.3
+        grad_color = (
+            min(255, int(base_color[0] * factor + 40)),
+            min(255, int(base_color[1] * factor + 40)),
+            min(255, int(base_color[2] * factor + 40))
+        )
+        if i < height - 3:  # Leave space for rounded bottom
+            pygame.draw.line(block_surface, grad_color, (3, i + 2), (width - 3, i + 2))
+    
+    # Add highlight on top edge
+    highlight_color = (
+        min(255, base_color[0] + 80),
+        min(255, base_color[1] + 80),
+        min(255, base_color[2] + 80)
+    )
+    pygame.draw.line(block_surface, highlight_color, (3, 2), (width - 3, 2), 2)
+    
+    # Add shadow on bottom edge
+    shadow_color = (
+        max(0, base_color[0] - 40),
+        max(0, base_color[1] - 40),
+        max(0, base_color[2] - 40)
+    )
+    pygame.draw.line(block_surface, shadow_color, (3, height - 3), (width - 3, height - 3), 2)
+    
+    # Blit the surface to screen
+    screen.blit(block_surface, (x, y))
+
+
 class Tetris:
     def __init__(self, height, width):
-        self.level = 2
+        self.level = 1
         self.score = 0
         self.state = "start"
         self.field = []
@@ -190,15 +234,15 @@ while not done:
             pygame.draw.rect(screen, GRAY, [
                              game.x + game.zoom * j, game.y + game.zoom * i, game.zoom, game.zoom], 1)
             if game.field[i][j] > 0:
-                pygame.draw.rect(screen, colors[game.field[i][j]],
-                                 [game.x + game.zoom * j + 1, game.y + game.zoom * i + 1, game.zoom - 2, game.zoom - 1])
+                draw_block_with_gradient(screen, colors[game.field[i][j]],
+                                 [game.x + game.zoom * j + 1, game.y + game.zoom * i + 1, game.zoom - 2, game.zoom - 2])
 
     if game.figure is not None:
         for i in range(4):
             for j in range(4):
                 p = i * 4 + j
                 if p in game.figure.image():
-                    pygame.draw.rect(screen, colors[game.figure.color],
+                    draw_block_with_gradient(screen, colors[game.figure.color],
                                      [game.x + game.zoom * (j + game.figure.x) + 1,
                                       game.y + game.zoom *
                                       (i + game.figure.y) + 1,
